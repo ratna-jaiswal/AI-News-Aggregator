@@ -3,6 +3,7 @@ from newspaper import Article
 import os
 import requests
 import logging
+import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -26,7 +27,16 @@ def extract_article_text(url: str) -> str:
 
 def summarize_text(text: str) -> str:
     """Summarize text into bullet points."""
-    sentences = text.split('.')
+    cleaned_text = re.sub(r'\s+', ' ', text).strip()
+    promotional_patterns = (
+        r'live events.*?trusted news source.*?(?:now!|$)',
+        r'you can now subscribe.*?(?:channel|$)',
+        r'subscribe to our.*?(?:channel|$)',
+    )
+    for pattern in promotional_patterns:
+        cleaned_text = re.sub(pattern, ' ', cleaned_text, flags=re.IGNORECASE)
+    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
+    sentences = re.split(r'(?<=[!?])\s+|(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])(?=[A-Z])', cleaned_text)
     bullet_points = ['• ' + sentence.strip() for sentence in sentences if sentence.strip()]
     return '\n'.join(bullet_points)
 

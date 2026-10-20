@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import './App.css';
 
 function ArticleSummary() {
   const { url } = useParams();
@@ -74,37 +75,51 @@ function ArticleSummary() {
     setLoadingTranslation(false);
   };
 
+  const summaryPoints = summary ? summary.split('\n').filter(Boolean) : [];
+  const sourceName = new URL(decodedUrl).hostname.replace(/^www\./, '');
+
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h2>🧠 Article Summary</h2>
+    <main className="summary-shell">
+      <div className="summary-topline">
+        <span className="eyebrow">The daily brief / analysis</span>
+        <a href={decodedUrl} target="_blank" rel="noopener noreferrer" className="summary-source">
+          Read original at {sourceName}
+        </a>
+      </div>
+      <h1 className="summary-title">Article summary</h1>
       {loadingSummary ? (
-        <p>Loading summary...</p>
+        <div className="summary-panel"><p className="summary-status">Preparing the briefing...</p></div>
       ) : (
-        <div style={{ marginTop: '2rem', whiteSpace: 'pre-line' }}>
-          <h3>🔍 English Summary:</h3>
-          <p>{summary}</p>
-          <select
-            value={selectedLanguage}
-            onChange={(e) => handleLanguageChange(e.target.value)}
-            style={{ margin: '1rem 0', padding: '0.5rem' }}
-          >
-            <option value="">Select Language</option>
-            {languages.map((lang) => (
-              <option key={lang.code} value={lang.code}>
-                {lang.name}
-              </option>
-            ))}
-          </select>
-          {loadingTranslation && <p>Translating...</p>}
+        <div className="summary-grid">
+          <section className="summary-panel">
+            <div className="summary-panel-heading">
+              <span>English summary</span>
+              <span className="summary-label">Key points</span>
+            </div>
+            <ul className="summary-points">
+              {summaryPoints.map((point, index) => <li key={index}>{point.replace(/^•\s*/, '')}</li>)}
+            </ul>
+          </section>
+          <aside className="translation-panel">
+            <p className="section-kicker">Translate briefing</p>
+            <label htmlFor="language-select">Choose a language</label>
+            <select id="language-select" value={selectedLanguage} onChange={(e) => handleLanguageChange(e.target.value)}>
+              <option value="">Select language</option>
+              {languages.map((lang) => <option key={lang.code} value={lang.code}>{lang.name}</option>)}
+            </select>
+            {loadingTranslation && <p className="summary-status">Translating...</p>}
+          </aside>
           {translatedSummary && (
-            <div style={{ marginTop: '1rem' }}>
-              <h3>🔍 Translated Summary ({languages.find(lang => lang.code === selectedLanguage)?.name || 'Unknown'}):</h3>
+            <div className="summary-panel translated-panel">
+              <div className="summary-panel-heading">
+                <span>{languages.find(lang => lang.code === selectedLanguage)?.name || 'Translated'} summary</span>
+              </div>
               <p>{translatedSummary}</p>
             </div>
           )}
         </div>
       )}
-    </div>
+    </main>
   );
 }
 
