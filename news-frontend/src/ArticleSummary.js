@@ -113,15 +113,13 @@ function ArticleSummary() {
               {languages.map((lang) => <option key={lang.code} value={lang.code}>{lang.name}</option>)}
             </select>
             {loadingTranslation && <p className="summary-status">Translating...</p>}
-          </aside>
-          {translatedSummary && (
-            <div className="summary-panel translated-panel">
-              <div className="summary-panel-heading">
-                <span>{languages.find(lang => lang.code === selectedLanguage)?.name || 'Translated'} summary</span>
+            {translatedSummary && (
+              <div className="translation-result">
+                <p className="translation-result-label">{languages.find(lang => lang.code === selectedLanguage)?.name || 'Translated'} version</p>
+                <p>{translatedSummary}</p>
               </div>
-              <p>{translatedSummary}</p>
-            </div>
-          )}
+            )}
+          </aside>
         </div>
       )}
     </main>

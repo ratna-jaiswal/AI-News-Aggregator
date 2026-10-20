@@ -57,6 +57,9 @@ button, select { font: inherit; }
 .translation-panel select { width: 100%; padding: 11px; border: 1px solid var(--line); border-radius: 2px; background: var(--white); color: var(--ink); }
 .summary-status { color: var(--ink-muted); font-size: 13px; line-height: 1.5; }
 .translation-panel .summary-status { margin: 18px 0 0; }
+.translation-result { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.translation-result-label { margin: 0 0 10px; color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.translation-result p:last-child { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.6; white-space: pre-line; }
 .translated-panel { grid-column: 1 / -1; }
 .translated-panel p { margin: 22px 0 0; color: var(--ink); font-size: 15px; line-height: 1.65; white-space: pre-line; }
 

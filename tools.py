@@ -4,6 +4,9 @@ import os
 import requests
 import logging
 import re
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -59,21 +62,23 @@ def translate_text(text: str, target_language: str) -> str:
             return "Error: Add TRANSLATE_API to .env to enable translation."
 
         url = "https://translation.googleapis.com/language/translate/v2"
-        params = {
-            'key': api_key,
-            'q': text,
-            'target': target_code,
-            'format': 'text'
-        }
         logger.info(f"Sending translation request for text to {target_code}")
-        response = requests.get(url, params=params)  # Use GET with query parameters
-        if response.status_code == 200:
-            translated_text = response.json()['data']['translations'][0]['translatedText']
-            logger.info("Translation successful")
-            return translated_text
-        else:
-            logger.error(f"Translation API error: Status code {response.status_code}, Response: {response.text}")
-            return f"Error: Translation API returned status code {response.status_code}: {response.text}"
+        chunks = [text[index:index + 4000] for index in range(0, len(text), 4000)]
+        translated_chunks = []
+        for chunk in chunks:
+            response = requests.post(
+                url,
+                params={'key': api_key},
+                data={'q': chunk, 'target': target_code, 'format': 'text'},
+                timeout=20,
+            )
+            if response.status_code != 200:
+                error_message = response.text[:300].replace('\n', ' ')
+                logger.error(f"Translation API error: Status code {response.status_code}, Response: {error_message}")
+                return f"Error: Translation API returned status code {response.status_code}: {error_message}"
+            translated_chunks.append(response.json()['data']['translations'][0]['translatedText'])
+        logger.info("Translation successful")
+        return '\n'.join(translated_chunks)
     except Exception as e:
         logger.error(f"Error in translation: {str(e)}")
         return f"Error in translation: {str(e)}"
