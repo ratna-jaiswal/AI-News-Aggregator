@@ -56,12 +56,15 @@ function ArticleSummary() {
       return;
     }
     setLoadingTranslation(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
     try {
       const query = `Translate this text to ${langCode}: ${summary}`;
       const res = await fetch('http://localhost:8000/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: query }),
+        signal: controller.signal,
       });
       if (!res.ok) {
         const errorData = await res.json();
@@ -70,7 +73,9 @@ function ArticleSummary() {
       const data = await res.json();
       setTranslatedSummary(data.output || 'No translation available');
     } catch (err) {
-      setTranslatedSummary(`❌ Error: ${err.message || 'Failed to translate'}`);
+      setTranslatedSummary(`Error: ${err.name === 'AbortError' ? 'Translation timed out.' : err.message || 'Failed to translate'}`);
+    } finally {
+      clearTimeout(timeoutId);
     }
     setLoadingTranslation(false);
   };

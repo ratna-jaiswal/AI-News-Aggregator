@@ -23,7 +23,7 @@ from tools import extract_article_text, summarize_text, translate_text
 # Initialize LLM
 try:
     llm = ChatGoogleGenerativeAI(
-        model="gemini-3.8-flash",
+        model="gemini-flash-latest",
         google_api_key=GOOGLE_API_KEY,
         temperature=0.4,
     )

@@ -44,10 +44,6 @@ def translate_text(text: str, target_language: str) -> str:
     """Translate text into the desired language."""
     try:
         api_key = os.getenv("TRANSLATE_API")
-        if not api_key:
-            logger.error("TRANSLATE_API not found in environment variables")
-            return "Error: TRANSLATE_API not found in environment variables."
-
         target_language = target_language.strip().lower()
         language_map = {
             'spanish': 'es',
@@ -58,6 +54,9 @@ def translate_text(text: str, target_language: str) -> str:
             'english': 'en'
         }
         target_code = language_map.get(target_language, target_language)
+
+        if not api_key:
+            return "Error: Add TRANSLATE_API to .env to enable translation."
 
         url = "https://translation.googleapis.com/language/translate/v2"
         params = {

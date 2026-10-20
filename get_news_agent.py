@@ -182,7 +182,7 @@ def cluster_articles(articles):
 def initialize_llm():
     try:
         llm = ChatGoogleGenerativeAI(
-            model="gemini-3.8-flash",
+            model="gemini-flash-latest",
             temperature=0,
             google_api_key=GOOGLE_API_KEY
         )

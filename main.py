@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from get_news_agent import get_news
 from agent import executor
-from tools import extract_article_text, summarize_text
+from tools import extract_article_text, summarize_text, translate_text
 import logging
 import re
 
@@ -42,6 +42,21 @@ class QueryInput(BaseModel):
 async def query_agent(data: QueryInput):
     """Process summarization and translation queries using the agent."""
     try:
+        translation_match = re.match(
+            r"Translate this text to\s+(.+?):\s*(.+)$",
+            data.input,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if translation_match:
+            target_language = translation_match.group(1).strip()
+            source_text = translation_match.group(2).strip()
+            translated_text = translate_text(source_text, target_language)
+            if translated_text.startswith("Error:"):
+                raise HTTPException(status_code=502, detail=translated_text)
+            return {"output": translated_text}
+
+        
+
         article_match = re.search(r"Summarize this article:\s*(https?://\S+)", data.input, re.IGNORECASE)
         if article_match:
             article_text = extract_article_text(article_match.group(1))
@@ -51,5 +66,7 @@ async def query_agent(data: QueryInput):
 
         result = executor.invoke({"input": data.input})
         return {"output": result["output"]}
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing query: {e or type(e).__name__}")
