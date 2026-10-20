@@ -1,0 +1,23 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local model and tool caches
+model_cache/
+
+# React build and dependencies
+news-frontend/node_modules/
+news-frontend/build/
+
+# Logs and OS/editor files
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
