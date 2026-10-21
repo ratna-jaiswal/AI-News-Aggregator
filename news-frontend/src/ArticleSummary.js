@@ -24,7 +24,7 @@ function ArticleSummary() {
     const fetchSummary = async () => {
       setLoadingSummary(true);
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
       try {
         const query = `Summarize this article: ${decodedUrl}`;
         const res = await fetch('http://localhost:8000/query', {

@@ -5,6 +5,7 @@ import requests
 import logging
 import re
 from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
 
@@ -29,7 +30,7 @@ def extract_article_text(url: str) -> str:
         return f"Error extracting article: {str(e)}"
 
 def summarize_text(text: str) -> str:
-    """Summarize text into bullet points."""
+    """Create an abstractive summary with Gemini and retain a local fallback."""
     cleaned_text = re.sub(r'\s+', ' ', text).strip()
     promotional_patterns = (
         r'live events.*?trusted news source.*?(?:now!|$)',
@@ -39,8 +40,32 @@ def summarize_text(text: str) -> str:
     for pattern in promotional_patterns:
         cleaned_text = re.sub(pattern, ' ', cleaned_text, flags=re.IGNORECASE)
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
+    if not cleaned_text:
+        return 'No article content was available to summarize.'
+
+    try:
+        llm = ChatGoogleGenerativeAI(
+            model='gemini-flash-latest',
+            temperature=0.2,
+            google_api_key=os.getenv('GOOGLE_API_KEY'),
+        )
+        prompt = (
+            'Summarize the following news article for a busy reader.\n'
+            'Return exactly 3 concise bullet points and one sentence titled '
+            '"Bottom line:". Preserve names, numbers, dates, and uncertainty. '
+            'Do not invent facts or add opinions.\n\n'
+            f'Article:\n{cleaned_text}'
+        )
+        response = llm.invoke(prompt)
+        summary = response.content if isinstance(response.content, str) else str(response.content)
+        summary = summary.strip()
+        if summary:
+            return summary
+    except Exception as error:
+        logger.warning('Abstractive summarization failed; using local fallback: %s', error)
+
     sentences = re.split(r'(?<=[!?])\s+|(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])(?=[A-Z])', cleaned_text)
-    bullet_points = ['• ' + sentence.strip() for sentence in sentences if sentence.strip()]
+    bullet_points = ['• ' + sentence.strip() for sentence in sentences[:3] if sentence.strip()]
     return '\n'.join(bullet_points)
 
 def translate_text(text: str, target_language: str) -> str:
