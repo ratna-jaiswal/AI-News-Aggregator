@@ -53,7 +53,7 @@ const NewsCard = ({ title, description, sources }) => {
           to={`/summary/${encodeURIComponent(sources[0]?.url || '#')}`}
           className="btn btn-secondary"
         >
-          Summarization
+          Summarize
         </Link>
       </div>
     </div>
