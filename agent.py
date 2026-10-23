@@ -26,6 +26,8 @@ try:
         model="gemini-flash-latest",
         google_api_key=GOOGLE_API_KEY,
         temperature=0.4,
+        request_timeout=30,
+        retries=0,
     )
 except Exception as e:
     raise Exception(f"Failed to initialize LLM: {str(e)}")

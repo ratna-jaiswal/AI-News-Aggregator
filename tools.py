@@ -48,6 +48,8 @@ def summarize_text(text: str) -> str:
             model='gemini-flash-latest',
             temperature=0.2,
             google_api_key=os.getenv('GOOGLE_API_KEY'),
+            request_timeout=30,
+            retries=0,
         )
         prompt = (
             'Summarize the following news article for a busy reader.\n'
